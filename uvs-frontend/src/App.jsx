@@ -1,4 +1,7 @@
+// src/App.jsx
+
 import React, { useState, useEffect, useRef } from 'react';
+import "./index.css";
 
 const APP_STATE = {
   UPLOADING: 'uploading',
@@ -6,6 +9,8 @@ const APP_STATE = {
   EKYB_VERIFYING: 'ekyb_verifying',
   VERIFIED: 'verified',
 };
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // UploadForm Component
 function UploadForm({ onUploadSuccess, onUploadStart }) {
@@ -19,7 +24,7 @@ function UploadForm({ onUploadSuccess, onUploadStart }) {
     setFile(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!license || !ssm) {
       setError('Please upload both documents.');
@@ -27,33 +32,21 @@ function UploadForm({ onUploadSuccess, onUploadStart }) {
     }
 
     setIsLoading(true);
-    onUploadStart();
+    setError('');
 
-    console.log("Upload simulation starting...");
-    setTimeout(() => {
-      console.log("Upload simulation completed");
-      if (typeof onUploadSuccess === 'function') {
-        const mockData = { 
-          uid: "u-1022", 
-          name: "Azlan Bin Ahmad",
-          dob: "1990-01-01",
-          license_no: "D12345678",
-          business: {
-            name: "Azlan's Warung",
-            reg_no: "SSM2020-123456"
-          },
-          status: "verified",
-          passport: { 
-            age_verified: true,
-            business_verified: true,
-            photo_verified: false 
-          } 
-        };
-        onUploadSuccess(mockData);
-        console.log("Upload success callback triggered with:", mockData);
-      }
+    // Create FormData for backend upload
+    const formData = new FormData();
+    formData.append('license', license);
+    formData.append('ssm', ssm);
+
+    try {
+      // Call the backend upload handler
+      await onUploadStart(formData);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setError('Upload failed. Please try again.');
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const FilePreview = ({ file }) => (
@@ -76,7 +69,8 @@ function UploadForm({ onUploadSuccess, onUploadStart }) {
             className="block w-full text-sm text-gray-500 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" 
             type="file" 
             onChange={(e) => handleFileChange(e, setLicense)} 
-            accept="image/*" 
+            accept="image/*"
+            disabled={isLoading}
           />
           {license && <FilePreview file={license} />}
         </div>
@@ -87,7 +81,8 @@ function UploadForm({ onUploadSuccess, onUploadStart }) {
             className="block w-full text-sm text-gray-500 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" 
             type="file" 
             onChange={(e) => handleFileChange(e, setSsm)} 
-            accept="image/*" 
+            accept="image/*"
+            disabled={isLoading}
           />
           {ssm && <FilePreview file={ssm} />}
         </div>
@@ -107,25 +102,8 @@ function UploadForm({ onUploadSuccess, onUploadStart }) {
 }
 
 // StatusTracker Component
-function StatusTracker({ onAnimationComplete }) {
-  const [currentStep, setCurrentStep] = useState(0);
+function StatusTracker({ currentStep }) {
   const steps = ['Document Upload', 'OCR Processing', 'Verification Complete'];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentStep(prev => {
-        if (prev < steps.length - 1) {
-          return prev + 1;
-        } else {
-          clearInterval(timer);
-          setTimeout(onAnimationComplete, 500);
-          return prev;
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [onAnimationComplete]);
 
   return (
     <div className="w-full p-6 bg-white rounded-xl">
@@ -290,7 +268,8 @@ function EKYBVerification({ onVerificationSuccess, onBack }) {
 function DigitalPassport({ passportData }) {
   const data = passportData || {
     name: 'N/A',
-    business: { name: 'N/A', reg_no: 'N/A' },
+    business_name: 'N/A',
+    business_reg_no: 'N/A',
     passport: { age_verified: false, business_verified: false, photo_verified: false },
     uid: 'u-1022',
   };
@@ -320,8 +299,9 @@ function DigitalPassport({ passportData }) {
 
       <div className="px-6 pb-6">
         <VerifiedField label="Name" value={data.name} />
-        <VerifiedField label="Business Name" value={data.business.name} />
-        <VerifiedField label="Business Reg. No" value={data.business.reg_no} />
+        <VerifiedField label="Business Name" value={data.business_name} />
+        <VerifiedField label="Business Reg. No" value={data.business_reg_no} />
+        <VerifiedField label="Address" value={data.address} />
         <VerifiedField
           label="Verification Status"
           value={
@@ -342,7 +322,7 @@ function DigitalPassport({ passportData }) {
   );
 }
 
-// Updated PartnerDemo Component with Form Fields
+// PartnerDemo Component
 function PartnerDemo() {
   const uvsVerifiedData = {
     name: "Azlan Bin Ahmad",
@@ -484,18 +464,80 @@ function PartnerDemo() {
 function App() {
   const [appState, setAppState] = useState(APP_STATE.UPLOADING);
   const [passportData, setPassportData] = useState(null);
+  const [currentStep, setCurrentStep] = useState(0);
   const [showPartnerDemo, setShowPartnerDemo] = useState(false);
 
-  console.log("App rendering with state:", appState);
-
-  const handleUploadStart = () => {
-    console.log("Upload started, moving to VERIFYING");
+  const handleUploadStart = async (formData) => {
     setAppState(APP_STATE.VERIFYING);
+    setCurrentStep(0);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/upload-docs", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      const { license_file, ssm_file } = result;
+
+      console.log("✅ Files uploaded:", license_file, ssm_file);
+
+      const socket = new WebSocket("ws://127.0.0.1:8000/ws/verification");
+
+      socket.onopen = () => {
+        console.log("🔌 WebSocket connected, sending file names...");
+        socket.send(
+          JSON.stringify({
+            license_file,
+            ssm_file,
+          })
+        );
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log("🟡 Received step:", data);
+        setCurrentStep(data.step);
+
+        if (data.step === 3) {
+          const mockPassportData = {
+            uid: "u-1022",
+            name: data.passport_data?.name || "Azlan Bin Ahmad",
+            dob: data.passport_data?.dob || "1990-01-01",
+            license_no: data.passport_data?.license_no || "D12345678",
+            business_name: data.passport_data?.business_name || "Azlan's Warung",
+            business_reg_no: data.passport_data?.business_reg_no || "SSM2020-123456",
+            address: data.passport_data?.address || "123 Jalan Niaga, 50450 Kuala Lumpur",
+            status: "verified",
+            passport: {
+              age_verified: true,
+              business_verified: true,
+              photo_verified: false,
+            },
+          };
+          setPassportData(mockPassportData);
+          setTimeout(() => handleAnimationComplete(), 500);
+        }
+      };
+
+      socket.onerror = (err) => {
+        console.error("❌ WebSocket error:", err);
+      };
+
+      socket.onclose = () => {
+        console.log("🔌 WebSocket closed");
+      };
+    } catch (err) {
+      console.error("❌ Upload failed:", err);
+      alert("Upload failed.");
+      setAppState(APP_STATE.UPLOADING);
+      setCurrentStep(0);
+    }
   };
 
-  const handleUploadSuccess = (data) => {
-    console.log("Upload success, moving to EKYB_VERIFYING", data);
-    setPassportData(data);
+  const handleAnimationComplete = () => {
     setAppState(APP_STATE.EKYB_VERIFYING);
   };
 
@@ -505,9 +547,10 @@ function App() {
     setAppState(APP_STATE.VERIFIED);
   };
 
-  const handleAnimationComplete = () => {
-    console.log("Animation complete, moving to EKYB_VERIFYING");
-    setAppState(APP_STATE.EKYB_VERIFYING);
+  const resetUVS = () => {
+    setPassportData(null);
+    setAppState(APP_STATE.UPLOADING);
+    setShowPartnerDemo(false);
   };
 
   const renderUVSApp = () => {
@@ -515,7 +558,7 @@ function App() {
     
     switch (appState) {
       case APP_STATE.VERIFYING:
-        return <StatusTracker onAnimationComplete={handleAnimationComplete} />;
+        return <StatusTracker currentStep={currentStep} />;
       case APP_STATE.EKYB_VERIFYING:
         return (
           <EKYBVerification
@@ -528,24 +571,28 @@ function App() {
         return <DigitalPassport passportData={passportData} />;
       case APP_STATE.UPLOADING:
       default:
-        return <UploadForm onUploadStart={handleUploadStart} onUploadSuccess={handleUploadSuccess} />;
+        return (
+          <UploadForm onUploadStart={handleUploadStart} />
+        );
     }
   };
 
   return (
     <div className="bg-gray-900 min-h-screen flex items-center justify-center font-sans p-4">
       <div className="w-[575px] h-[912px] bg-gray-100 rounded-[40px] shadow-2xl p-2 overflow-hidden flex flex-col">
+
+        {/* DEMO TOGGLE BUTTONS */}
         <div className="flex-shrink-0 p-2 bg-gray-200 rounded-t-3xl">
           <div className="p-1 bg-gray-300 rounded-lg flex justify-around text-xs font-bold">
             <button
               onClick={() => setShowPartnerDemo(false)}
-              className={`w-1/2 p-2 rounded-md ${!showPartnerDemo ? 'bg-white shadow' : ''}`}
+              className={`w-1/2 p-2 rounded-md ${!showPartnerDemo ? "bg-white shadow" : ""}`}
             >
               UVS Identity App
             </button>
             <button
               onClick={() => setShowPartnerDemo(true)}
-              className={`w-1/2 p-2 rounded-md ${showPartnerDemo ? 'bg-white shadow' : ''}`}
+              className={`w-1/2 p-2 rounded-md ${showPartnerDemo ? "bg-white shadow" : ""}`}
             >
               Partner Demo
             </button>

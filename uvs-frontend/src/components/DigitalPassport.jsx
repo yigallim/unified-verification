@@ -1,5 +1,9 @@
+
+// src/components/DigitalPassport.jsx
+
 import React from 'react';
 import QRCode from 'react-qr-code';
+
 
 const VerifiedField = ({ label, value }) => (
   <div className="flex justify-between items-center py-3 border-b border-gray-200">
@@ -9,29 +13,8 @@ const VerifiedField = ({ label, value }) => (
 );
 
 export const DigitalPassport = ({ passportData }) => {
-  const data = passportData || {
-    name: 'N/A',
-    business: { name: 'N/A', reg_no: 'N/A' },
-    passport: { age_verified: false, business_verified: false, photo_verified: false },
-    uid: 'u-1022',
-  };
 
-  const [selectedPartners, setSelectedPartners] = React.useState([]);
-
-  const togglePartner = (partner) => {
-    setSelectedPartners((prev) =>
-      prev.includes(partner)
-        ? prev.filter((p) => p !== partner)
-        : [...prev, partner]
-    );
-  };
-
-  const shareData = {
-    uid: data.uid,
-    business_verified: data.passport.business_verified,
-    age_verified: data.passport.age_verified,
-    dob: data.dob || '1990-01-01',
-  };
+  console.log("Rendering Digital Passport with data:", passportData);
 
   return (
     <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
@@ -50,52 +33,28 @@ export const DigitalPassport = ({ passportData }) => {
       </div>
 
       <div className="px-6 pb-6">
-        <VerifiedField label="Name" value={data.name} />
-        <VerifiedField label="Business Name" value={data.business.name} />
-        <VerifiedField label="Business Reg. No" value={data.business.reg_no} />
-        <VerifiedField
-          label="Verification Status"
-          value={
-            data.passport.photo_verified
-              ? 'Fully Verified (Including Stall)'
-              : 'Verified (Pending Stall Photo)'
-          }
-        />
+
+        <VerifiedField label="Name" value={passportData.name} />
+        <VerifiedField label="Business Name" value={passportData.business_name} />
+        <VerifiedField label="Business Reg. No" value={passportData.business_reg_no} />
       </div>
 
-      <div className="p-6 bg-gray-50 border-t border-gray-200">
-        <h3 className="text-md font-semibold text-gray-700 mb-2">Verification Complete</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Apply to services instantly with your UVS Passport. Select partners to share minimal data.
+      {/* THIS SECTION IS REPLACED */}
+      <div className="p-6 bg-gray-50 border-t border-gray-200 text-center">
+        <h3 className="text-md font-semibold text-gray-700 mb-2">Your Identity is Ready</h3>
+        <p className="text-sm text-gray-600">
+          Use your UVS Passport to instantly apply for services with our partners.
         </p>
 
-        <div className="space-y-2 mb-4">
-          {['TNG', 'Agrobank', 'FPX'].map((partner) => (
-            <button
-              key={partner}
-              onClick={() => togglePartner(partner)}
-              className={`w-full text-left p-2 rounded-md text-sm font-medium ${
-                selectedPartners.includes(partner)
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Share with {partner}
-            </button>
-          ))}
-        </div>
-
-        {selectedPartners.length > 0 && (
-          <p className="text-sm text-gray-600 mb-4">
-            Sharing with: {selectedPartners.join(', ')}
-          </p>
-        )}
       </div>
 
       <div className="p-6 flex flex-col items-center bg-white border-t">
         <h3 className="text-sm font-semibold text-gray-500 mb-2">Share via QR</h3>
         <div className="p-2 bg-white border rounded-lg">
-          <QRCode value={JSON.stringify(shareData)} size={128} />
+
+          {/* This QR code now represents the key to their identity vault */}
+          <QRCode value={JSON.stringify(passportData)} size={128} />
+
         </div>
         <p className="text-xs text-gray-500 mt-2">
           Scan to share verified data with selected partners.
