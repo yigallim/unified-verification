@@ -112,6 +112,7 @@ export const PartnerDemo = () => {
         </div>
 
         {!isApplied && (
+
           <button
             onClick={handleApplyWithUVS}
             disabled={isLoading}
@@ -119,13 +120,15 @@ export const PartnerDemo = () => {
           >
             {isLoading ? "Verifying with UVS..." : "✨ Auto-fill with UVS Passport"}
           </button>
-        )}
+
 
         {isApplied && (
+
           <div className="p-4 mt-2 bg-green-100 border border-green-300 rounded-lg text-center">
             <p className="font-semibold text-green-800">✓ Application Approved!</p>
             <p className="text-sm text-green-700">All details were instantly verified by UVS.</p>
           </div>
+
         )}
       </div>
     </div>

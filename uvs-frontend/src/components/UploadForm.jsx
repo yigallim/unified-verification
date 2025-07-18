@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 
 export const UploadForm = ({ onUploadSuccess, onUploadStart }) => {
   const [license, setLicense] = useState(null);
   const [ssm, setSsm] = useState(null);
   const [previewUrls, setPreviewUrls] = useState({ license: "", ssm: "" });
+
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -17,14 +19,17 @@ export const UploadForm = ({ onUploadSuccess, onUploadStart }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+
     // if (!license || !ssm) {
     //   setError("Please upload both documents.");
     //   return;
     // }
 
+
     setIsLoading(true);
+
 
     const formData = new FormData();
     formData.append("license", license);
@@ -32,6 +37,7 @@ export const UploadForm = ({ onUploadSuccess, onUploadStart }) => {
 
     console.log("Simulating file upload...");
     onUploadStart(formData);
+
   };
 
   const FilePreview = ({ file }) => (
@@ -113,4 +119,6 @@ export const UploadForm = ({ onUploadSuccess, onUploadStart }) => {
       )}
     </div>
   );
+
 };
+

@@ -1,6 +1,9 @@
+
 // src/components/DigitalPassport.jsx
 
-import QRCode from "react-qr-code";
+import React from 'react';
+import QRCode from 'react-qr-code';
+
 
 const VerifiedField = ({ label, value }) => (
   <div className="flex justify-between items-center py-3 border-b border-gray-200">
@@ -10,7 +13,9 @@ const VerifiedField = ({ label, value }) => (
 );
 
 export const DigitalPassport = ({ passportData }) => {
+
   console.log("Rendering Digital Passport with data:", passportData);
+
   return (
     <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="p-6">
@@ -28,6 +33,7 @@ export const DigitalPassport = ({ passportData }) => {
       </div>
 
       <div className="px-6 pb-6">
+
         <VerifiedField label="Name" value={passportData.name} />
         <VerifiedField label="Business Name" value={passportData.business_name} />
         <VerifiedField label="Business Reg. No" value={passportData.business_reg_no} />
@@ -39,14 +45,20 @@ export const DigitalPassport = ({ passportData }) => {
         <p className="text-sm text-gray-600">
           Use your UVS Passport to instantly apply for services with our partners.
         </p>
+
       </div>
 
       <div className="p-6 flex flex-col items-center bg-white border-t">
         <h3 className="text-sm font-semibold text-gray-500 mb-2">Share via QR</h3>
         <div className="p-2 bg-white border rounded-lg">
+
           {/* This QR code now represents the key to their identity vault */}
           <QRCode value={JSON.stringify(passportData)} size={128} />
+
         </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Scan to share verified data with selected partners.
+        </p>
       </div>
     </div>
   );
