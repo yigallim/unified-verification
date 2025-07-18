@@ -1,7 +1,6 @@
 // src/components/DigitalPassport.jsx
 
-import React from 'react';
-import QRCode from 'react-qr-code';
+import QRCode from "react-qr-code";
 
 const VerifiedField = ({ label, value }) => (
   <div className="flex justify-between items-center py-3 border-b border-gray-200">
@@ -11,6 +10,7 @@ const VerifiedField = ({ label, value }) => (
 );
 
 export const DigitalPassport = ({ passportData }) => {
+  console.log("Rendering Digital Passport with data:", passportData);
   return (
     <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="p-6">
@@ -29,23 +29,23 @@ export const DigitalPassport = ({ passportData }) => {
 
       <div className="px-6 pb-6">
         <VerifiedField label="Name" value={passportData.name} />
-        <VerifiedField label="Business Name" value={passportData.business.name} />
-        <VerifiedField label="Business Reg. No" value={passportData.business.reg_no} />
+        <VerifiedField label="Business Name" value={passportData.business_name} />
+        <VerifiedField label="Business Reg. No" value={passportData.business_reg_no} />
       </div>
-      
+
       {/* THIS SECTION IS REPLACED */}
       <div className="p-6 bg-gray-50 border-t border-gray-200 text-center">
-         <h3 className="text-md font-semibold text-gray-700 mb-2">Your Identity is Ready</h3>
-         <p className="text-sm text-gray-600">
-           Use your UVS Passport to instantly apply for services with our partners.
-         </p>
+        <h3 className="text-md font-semibold text-gray-700 mb-2">Your Identity is Ready</h3>
+        <p className="text-sm text-gray-600">
+          Use your UVS Passport to instantly apply for services with our partners.
+        </p>
       </div>
 
       <div className="p-6 flex flex-col items-center bg-white border-t">
         <h3 className="text-sm font-semibold text-gray-500 mb-2">Share via QR</h3>
         <div className="p-2 bg-white border rounded-lg">
           {/* This QR code now represents the key to their identity vault */}
-          <QRCode value={JSON.stringify({ uid: passportData.uid })} size={128} />
+          <QRCode value={JSON.stringify(passportData)} size={128} />
         </div>
       </div>
     </div>
