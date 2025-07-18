@@ -342,65 +342,140 @@ function DigitalPassport({ passportData }) {
   );
 }
 
-// PartnerDemo Component
+// Updated PartnerDemo Component with Form Fields
 function PartnerDemo() {
-  const [isApplying, setIsApplying] = useState(false);
-  const [applicationComplete, setApplicationComplete] = useState(false);
-
-  const handleApplyWithUVS = () => {
-    setIsApplying(true);
-    setTimeout(() => {
-      setIsApplying(false);
-      setApplicationComplete(true);
-    }, 2000);
+  const uvsVerifiedData = {
+    name: "Azlan Bin Ahmad",
+    business: {
+      name: "Azlan's Warung",
+      reg_no: "SSM2020-123456",
+      address: "123 Jalan Niaga, 50450 Kuala Lumpur",
+      type: "Sole Proprietorship",
+      branch: "KL Main Branch",
+    },
+    dob: "1990-01-01",
   };
 
-  if (applicationComplete) {
-    return (
-      <div className="w-full p-6 bg-white rounded-xl text-center">
-        <div className="text-green-600 text-6xl mb-4">✓</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Successful!</h2>
-        <p className="text-gray-600 mb-6">Your FPX application has been processed using your UVS Digital Passport.</p>
-        <button
-          onClick={() => setApplicationComplete(false)}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700"
-        >
-          Apply for Another Service
-        </button>
-      </div>
-    );
-  }
+  const [name, setName] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [regNo, setRegNo] = useState('');
+  const [address, setAddress] = useState('');
+  const [businessType, setBusinessType] = useState('');
+  const [branch, setBranch] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
+
+  const handleApplyWithUVS = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setName(uvsVerifiedData.name);
+      setBusinessName(uvsVerifiedData.business.name);
+      setRegNo(uvsVerifiedData.business.reg_no);
+      setAddress(uvsVerifiedData.business.address);
+      setBusinessType(uvsVerifiedData.business.type);
+      setBranch(uvsVerifiedData.business.branch);
+      
+      setIsLoading(false);
+      setIsApplied(true);
+    }, 1500);
+  };
 
   return (
-    <div className="w-full p-6 bg-white rounded-xl">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Maybank FPX</h2>
-        <p className="text-gray-600 mt-2">Apply for FPX payment gateway</p>
-      </div>
-
-      <div className="space-y-4 mb-6">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold text-gray-700 mb-2">Required Documents:</h3>
-          <ul className="text-sm text-gray-600 space-y-1">
-            <li>• Business Registration Certificate</li>
-            <li>• Owner's IC/Passport</li>
-            <li>• Business Address Proof</li>
-            <li>• Bank Statement (6 months)</li>
-          </ul>
+    <div className="w-full bg-transparent rounded-xl shadow-lg">
+      <div className="p-3 bg-yellow-400 flex items-center rounded-t-xl">
+        <div className="h-8 w-20 bg-blue-900 rounded flex items-center justify-center">
+          <span className="text-white text-xs font-bold">Maybank</span>
         </div>
       </div>
 
-      <button
-        onClick={handleApplyWithUVS}
-        disabled={isApplying}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300"
-      >
-        {isApplying ? 'Processing with UVS...' : 'Apply with UVS Passport'}
-      </button>
+      <div className="p-6 space-y-4 text-left bg-yellow-50 rounded-b-xl">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-800">FPX Business Application</h2>
+          <p className="text-sm text-gray-600">Please fill in your details below.</p>
+        </div>
 
-      <p className="text-xs text-gray-500 mt-3 text-center">
-        Skip the paperwork! Apply instantly with your verified UVS Digital Passport.
-      </p>
+        <div className="space-y-4 pt-4">
+          <h3 className="font-bold text-gray-700">Business Information</h3>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Full Name</label>
+            <input 
+              type="text" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              disabled={isApplied} 
+              className="w-full p-2 mt-1 bg-white border border-gray-300 rounded-md disabled:bg-gray-200" 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Business Name</label>
+            <input 
+              type="text" 
+              value={businessName} 
+              onChange={(e) => setBusinessName(e.target.value)} 
+              disabled={isApplied} 
+              className="w-full p-2 mt-1 bg-white border border-gray-300 rounded-md disabled:bg-gray-200" 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Business Registration No.</label>
+            <input 
+              type="text" 
+              value={regNo} 
+              onChange={(e) => setRegNo(e.target.value)} 
+              disabled={isApplied} 
+              className="w-full p-2 mt-1 bg-white border border-gray-300 rounded-md disabled:bg-gray-200" 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Business Type</label>
+            <input 
+              type="text" 
+              value={businessType} 
+              onChange={(e) => setBusinessType(e.target.value)} 
+              disabled={isApplied} 
+              className="w-full p-2 mt-1 bg-white border border-gray-300 rounded-md disabled:bg-gray-200" 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Branch</label>
+            <input 
+              type="text" 
+              value={branch} 
+              onChange={(e) => setBranch(e.target.value)} 
+              disabled={isApplied} 
+              className="w-full p-2 mt-1 bg-white border border-gray-300 rounded-md disabled:bg-gray-200" 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500">Business Address</label>
+            <textarea 
+              value={address} 
+              onChange={(e) => setAddress(e.target.value)} 
+              disabled={isApplied} 
+              rows="2" 
+              className="w-full p-2 mt-1 bg-white border border-gray-300 rounded-md disabled:bg-gray-200"
+            />
+          </div>
+        </div>
+
+        {!isApplied && (
+          <button 
+            onClick={handleApplyWithUVS} 
+            disabled={isLoading} 
+            className="w-full bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center hover:bg-blue-800 transition-all disabled:bg-gray-400"
+          >
+            {isLoading ? 'Verifying with UVS...' : '✨ Auto-fill with UVS Passport'}
+          </button>
+        )}
+        
+        {isApplied && (
+          <div className="p-4 mt-2 bg-green-100 border border-green-300 rounded-lg text-center">
+            <p className="font-semibold text-green-800">✓ Application Approved!</p>
+            <p className="text-sm text-green-700">All details were instantly verified by UVS.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -421,7 +496,7 @@ function App() {
   const handleUploadSuccess = (data) => {
     console.log("Upload success, moving to EKYB_VERIFYING", data);
     setPassportData(data);
-    setAppState(APP_STATE.EKYB_VERIFYING); // Go directly to EKYB
+    setAppState(APP_STATE.EKYB_VERIFYING);
   };
 
   const handleEKYBVerificationSuccess = (data) => {
